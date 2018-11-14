@@ -1,0 +1,34 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../shared/shared-styles.html">
+
+<dom-module id="mis-movimientos">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MisMovimientos extends Polymer.Element {
+      static get is() { return 'mis-movimientos'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'movimientos'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(MisMovimientos.is, MisMovimientos);
+  </script>
+</dom-module>

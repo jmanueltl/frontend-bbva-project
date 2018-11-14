@@ -1,0 +1,127 @@
+<link rel="import" href="../../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../../bower_components/app-route/app-route.html">
+<link rel="import" href="../mis-cuentas/mis-cuentas.html">
+<link rel="import" href="../mis-movimientos/mis-movimientos.html">
+<link rel="import" href="../mis-transferencias/mis-transferencias.html">
+
+<link rel="icon" href="../../images/favicon.ico">
+<dom-module id="main-app">
+  <template>
+    <style>
+    :host {
+      --app-primary-color: #4285f4;
+      --app-secondary-color: black;
+
+      display: block;
+    }
+
+    app-drawer-layout:not([narrow]) [drawer-toggle] {
+      display: none;
+    }
+
+    app-header {
+      color: #fff;
+      background-color: var(--app-primary-color);
+    }
+
+    app-header paper-icon-button {
+      --paper-icon-button-ink-color: white;
+    }
+
+    .drawer-list {
+      margin: 0 20px;
+    }
+
+    .drawer-list a {
+      display: block;
+      padding: 0 16px;
+      text-decoration: none;
+      color: var(--app-secondary-color);
+      line-height: 40px;
+    }
+
+    .drawer-list a.iron-selected {
+      color: black;
+      font-weight: bold;
+    }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route id="router-principal"
+      route="{{route}}"
+      pattern="/:page"
+      data="{{data}}"
+      tail="{{subroute}}">
+    </app-route>
+
+
+  <app-drawer-layout fullbleed narrow="{{narrow}}">
+    <!-- Drawer content -->
+    <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+      <app-toolbar>Menu</app-toolbar>
+      <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+        <a name="mis-cuentas" href="/mis-cuentas/">Mis Cuentas</a>
+        <a name="mis-movimientos" href="/mis-movimientos/">Mis movimientos</a>
+        <a name="mis-transferencias" href="/mis-transferencias/">Mis transferencias</a>
+        <a name="" href="//">Logout</a>
+      </iron-selector>
+    </app-drawer>
+
+    <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+        <app-header slot="header" condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>Bienvenidos a la nueva banca móvil</div>
+          </app-toolbar>
+        </app-header>
+
+        <iron-pages selected="[[data.page]]"
+                    attr-for-selected="name"
+                    fallback-selection="view404">
+          <mis-cuentas name="mis-cuentas"></mis-cuentas>
+          <mis-movimientos name="mis-movimientos"></mis-movimientos>
+          <mis-transferencias name="mis-transferencias"></mis-transferencias>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+<!--
+  <iron-pages selected="[[data.page]]"
+              attr-for-selected="name"
+              fallback-selection="view404">
+    <mis-cuentas name="mis-cuentas"></mis-cuentas>
+    <mis-movimientos name="mis-movimientos"></mis-movimientos>  </iron-pages>-->
+  <!--  <usuarios-page name="usuarios"></usuarios-page>
+    <contacto-page name="contacto"></contacto-page>
+    <view404-page name="view404"></view404-page>-->
+
+    <h2>Hello [[prop1]]!</h2>
+
+  </template>
+
+  <script>
+
+    class MainApp extends Polymer.Element {
+      static get is() { return 'main-app'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'main-app'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(MainApp.is, MainApp);
+  </script>
+</dom-module>

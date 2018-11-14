@@ -1,0 +1,51 @@
+<script src="https://polygit.org/components/webcomponentsjs/webcomponents-loader.js"></script>
+
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
+<!--<link rel="import"  href="https://polygit.org/components/paper-button/paper-button.html">-->
+
+<dom-module id="my-list">
+  <template>
+
+    <iron-list id="list" items="{{items}}">
+
+      <template>
+         <!--YOU MUST NO CHANGE THE CSS DISPLAY PROPERTY OF THE ROOT ELEMENT OF THE TEMPLATE!-->
+        <div>
+
+         <div style="display:flex; justify-content: space-between; align-items: center;">
+
+          <div style="margin: 20px; ">
+            {{item}}
+          </div>
+
+          <paper-button on-tap="_onDeleteClicked"
+          style="background: red; color: white;">Remove</paper-button>
+         </div>
+
+        </div>
+      </template>
+
+    </iron-list>
+
+  </template>
+
+  <script>
+    class MyList extends Polymer.Element {
+      static get is() { return "my-list"; }
+
+      // set this element's employees property
+      constructor() {
+        super();
+        this.items = [1,2,3,4];
+      }
+
+      _onDeleteClicked(event){
+        this.splice("items", event.model.index, 1);
+        this.$.list.notifyResize();
+      }
+    }
+  customElements.define(MyList.is, MyList);
+  </script>
+
+</dom-module>

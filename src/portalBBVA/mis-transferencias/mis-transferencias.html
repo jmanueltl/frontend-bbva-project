@@ -1,0 +1,63 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../shared/shared-styles.html">
+
+<dom-module id="mis-transferencias">
+  <template>
+  <style include="shared-styles">
+  :host {
+    display: block;
+
+    padding: 10px;
+  }
+  </style>
+  <div class="card">
+    <h2>Realizar Transferencias</h2>
+
+    <div>
+      <label>Monto a transferir</label>
+      <iron-input  allowed-pattern="[0-9]" auto-validate>
+        <input pattern="\d{3}" type="number" value={{monto::input}} placeholder="Monto a Transferir  "></input>
+      </iron-input>
+    </div>
+
+  <!--  <iron-input><input placeholder="type=date" type="date"></iron-input>
+    <iron-input><input placeholder="disabled" disabled></iron-input>
+
+    <iron-input allowed-pattern="[0-9]" auto-validate>
+         <input pattern="\d{3}" placeholder="exactly 3 digits are valid">
+    </iron-input>
+    <demo-snippet class="centered-demo">
+      <template>
+        <iron-input allowed-pattern="[!@#0-9]">
+          <input pattern="\d{3}" placeholder="exactly 3 digits are valid">
+        </iron-input>
+      </template>
+    </demo-snippet>-->
+    <iron-ajax
+      auto
+      id="postTransferencias"
+       url="http://localhost:4000/APIperu/v1/users/18"
+      handle-as="json"
+      on-response="showData">
+    </template>
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MisTransferencias extends Polymer.Element {
+      static get is() { return 'mis-transferencias'; }
+      static get properties() {
+        return {
+          monto: {
+            type: Number
+
+          }
+        };
+      }
+    }
+
+    window.customElements.define(MisTransferencias.is, MisTransferencias);
+  </script>
+</dom-module>

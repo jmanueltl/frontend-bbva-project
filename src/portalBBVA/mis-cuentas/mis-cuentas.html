@@ -1,0 +1,81 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../shared/shared-styles.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
+
+<link rel="import" href="../mis-movimientos/mis-movimientos.html" />
+
+<dom-module id="mis-cuentas">
+  <template>
+    <style include="shared-styles">
+    :host {
+      display: block;
+
+      padding: 10px;
+    }
+    </style>
+    <div class="card">
+      <h1>Mis cuentas</h1>
+      <div class="circule">1</div>
+
+      <iron-list items="[[response]]" as="item" id="xx">
+        <template>
+          <div id="t{{item.idAccount}}">
+            <h2>{{item.nameAccount}} {{item.nroAccount}}</h2>
+            <h3>saldo : {{item.saldo}}</h3>
+            <h4><button on-click="mostrarMovimientosComponent" data-item$ ="[[index]]" > Ver movimientos</button></h4>
+            <div hidden$="[[oculto]]" id="mov{{item.idAccount}}">
+              <mis-movimientos ></mis-movimientos>
+            </div>
+          </div>
+        </template>
+      </iron-list>
+
+    <iron-ajax
+      auto
+      id="getPerson"
+       url="http://localhost:4000/APIperu/v1/users/18"
+      handle-as="json"
+      on-response="showData">
+  </template>
+
+  <script>
+
+    class MisCuentas extends Polymer.Element {
+      static get is() { return 'mis-cuentas'; }
+      static get properties() {
+        return {
+          oculto: {
+            type: Boolean,
+            value: true
+          }
+        };
+      }
+
+      showData(data) {
+          console.log("showData");
+          console.log(data.detail.response);
+          this.response = data.detail.response.transaction;
+          //this.id = data.detail.response[0].first_name;
+          //this.name = data.detail.response[0].userID;
+        }
+
+      mostrarMovimientosComponent(){
+        var item = Number(event.target.dataset.item)+1;
+        let s = Polymer.dom(this.root).querySelector("#mov"+item);
+
+        if(s.style.display == "none"){
+          s.style.display = "block";
+        }
+        else if(s.style.display == "block"){
+          s.style.display = "none";
+        }
+        else {
+          s.style.display = "block";
+        }
+      }
+    }
+
+    window.customElements.define(MisCuentas.is, MisCuentas);
+  </script>
+</dom-module>

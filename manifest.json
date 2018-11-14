@@ -1,0 +1,7 @@
+{
+  "name": "frontend-final",
+  "short_name": "frontend-final",
+  "description": "banca movil con ether",
+  "start_url": "/",
+  "display": "standalone"
+}
