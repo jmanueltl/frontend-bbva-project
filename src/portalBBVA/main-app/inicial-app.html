@@ -1,0 +1,168 @@
+<link rel="import" href="../../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../login-user/login-user.html">
+<link rel="import" href="../main-app/main-app.html">
+
+<dom-module id="inicial-app">
+  <template>
+  <style>
+    :host {
+      display: block;
+    }
+    .closeSession {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    .closeSession a{
+      font-size: 30px;
+      color:white;
+    }
+    paper-dialog{
+      padding: 1em 1em 1em 1em;
+      text-align: right;
+      border-radius: 15px;
+      font-size: 20px;
+    }
+    .paper-buton-close{ background-color: #ccc; border-radius: 13px; float: right; min-width: unset !important; margin: 10px; border: solid 2px #b2b2b2; color: #303f9f; padding: unset; width: 26px; text-align: center; }
+
+  </style>
+
+    <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+
+    <template is="dom-if" if="{{_isEqualTo(islog.isLogin, 'NOK')}}">
+      <login-user on-login-ok="login" email={{email}} password={{password}} ></login-user>
+    </template>
+
+    <template is="dom-if" if="{{_isEqualTo(islog.isLogin, 'OK')}}">
+      <main-app on-logout-ok="logout" api=[[api]] menu='00'></main-app>
+    </template>
+
+    <paper-dialog id='messageGlobal' modal>
+      <paper-button dialog-dismiss class="paper-buton-close"> X </paper-button>
+      <div class="{{messageStyle::input}}" role="alert">
+        {{message::input}}
+      </div>
+    </paper-dialog>
+
+    <iron-ajax
+      id="doLogout"
+      url=[[api.api_host]][[api.api_logout]]
+      content-type="application/json"
+      method="POST"
+      handle-as="json"
+      on-response="logoutAJAXResponse"
+      on-error="showErrorLogout">
+
+      <iron-ajax
+        id="doLogin"
+        url=[[api.api_host]][[api.api_log]]
+        content-type="application/json"
+        method="POST"
+        handle-as="json"
+        on-response="loginAJAXResponse"
+        on-error="showErrorLogin">
+  </template>
+
+  <script>
+    class InicialApp extends Polymer.Element {
+      static get is() { return 'inicial-app'; }
+      static get properties() {
+        return {
+          islog: {
+           type: Object,
+           value: {
+             "isLogin":"NOK"
+           }
+         },
+           api: {
+             type: Object,
+             value: {
+               "api_host":"http://localhost:4000/APIperu/v1/",
+               "api_users":"users",
+               "api_accounts":"accounts",
+               "api_mov":"movements",
+               "api_logout":"logout",
+               "api_log":"login"
+             }
+           },
+           email: {
+             type: String,
+             value:""
+           },
+           password: {
+             type: String,
+             value:""
+           },
+            message: {
+             type: String
+           },
+            messageStyle: {
+             type: String
+           }
+        };
+      }
+      static get observers(){
+        return [
+          '_isLoggedChanged(islog)',
+          '_isEmailChanged(email)'
+        ]
+      }
+
+      _isLoggedChanged(){}
+      _isEmailChanged(){}
+
+      _isEqualTo(title, string){
+        return title == string;
+      }
+
+      logout(){
+        var logoutData = {
+          "email" : this.islog.email
+        };
+        this.$.doLogout.body = JSON.stringify(logoutData);
+        this.$.doLogout.generateRequest();
+      }
+
+      logoutAJAXResponse(data) {
+        this.islog={
+          "isLogin":"NOK"
+        };
+        this.email="";
+        this.password="";
+      }
+
+      showErrorLogout(error) {
+        console.log("Error Logout: "+error);
+      }
+
+      login() {
+        var loginData = {
+          "email" : this.email,
+          "password" : this.password
+        };
+        this.$.doLogin.body = JSON.stringify(loginData);
+        this.$.doLogin.generateRequest();
+      }
+
+      loginAJAXResponse(data) {
+        this.islog = {
+          "email":this.email,
+          "isLogin":"OK",
+          "token":'Basic '+data.detail.response.token
+        }
+        console.log(data.detail.response);  //quitar luego
+      }
+
+      showErrorLogin(error) {
+        console.log("Error Login: "+error);
+        this.messageStyle="alert alert-danger";
+        this.message="Email o password incorrectos.";
+        this.$.messageGlobal.open();
+      }
+    }
+
+    window.customElements.define(InicialApp.is, InicialApp);
+  </script>
+</dom-module>

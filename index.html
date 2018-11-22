@@ -11,12 +11,15 @@
     <meta name="msapplication-tap-highlight" content="no">
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="images/favicon.ico">
+    <link rel="icon" href="/images/favicon.ico">
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
     <link rel="import" href="/src/portalBBVA/main-app/main-app.html">
     <link rel="import" href="/src/portalBBVA/mis-transferencias/mis-transferencias.html">
     <link rel="import" href="/src/portalBBVA/my-list/my-list.html">
+    <link rel="import" href="/src/portalBBVA/main-app/inicial-app.html">
+
+    <link rel="import" href="/src/portalBBVA/login-user/login-user.html">
     <style>
       body {
         margin: 0;
@@ -27,8 +30,7 @@
       }
     </style>
   </head>
-  <body>
-    <main-app></main-app>
-    <!--<my-list></my-list>-->
+  <body style="background-image: url('../images/fondo.jpg'); ">
+    <inicial-app></inicial-app>
   </body>
 </html>

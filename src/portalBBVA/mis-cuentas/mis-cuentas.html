@@ -14,6 +14,9 @@
       padding: 10px;
     }
     </style>
+
+    <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+
     <div class="card">
       <h1>Mis cuentas</h1>
       <div class="circule">1</div>
@@ -25,7 +28,7 @@
             <h3>saldo : {{item.saldo}}</h3>
             <h4><button on-click="mostrarMovimientosComponent" data-item$ ="[[index]]" > Ver movimientos</button></h4>
             <div hidden$="[[oculto]]" id="mov{{item.idAccount}}">
-              <mis-movimientos ></mis-movimientos>
+              <mis-movimientos api=[[api]] user=[[user]] account=[[account]] is_mov={{is_mov}}></mis-movimientos>
             </div>
           </div>
         </template>
@@ -33,10 +36,12 @@
 
     <iron-ajax
       auto
-      id="getPerson"
-       url="http://localhost:4000/APIperu/v1/users/18"
+      id="getAccount"
+      method="GET"
+      url='[[api.api_host]][[api.api_users]]/[[user.userID]]/[[api.api_accounts]]'
       handle-as="json"
-      on-response="showData">
+      on-response="showData"
+      headers$='{"authorization": "{{islog.token}}"}'>
   </template>
 
   <script>
@@ -48,13 +53,38 @@
           oculto: {
             type: Boolean,
             value: true
+          },
+          user: {
+            type: Object,
+            value:{}
+          },
+          is_mov: {
+            type: String,
+            value:"NOK"
+          },
+          api: {
+            type: Object
+          },
+          account: {
+            type: Object,
+            value: {}
+          },
+          is_account: {
+            type: String,
+            notify: true
+          },
+          islog: {
+           type: Object,
+           value: {}
           }
         };
       }
 
       showData(data) {
           console.log("showData");
+          console.log(this.api);
           console.log(data.detail.response);
+          this.accounts = data.detail.response;
           this.response = data.detail.response.transaction;
           //this.id = data.detail.response[0].first_name;
           //this.name = data.detail.response[0].userID;

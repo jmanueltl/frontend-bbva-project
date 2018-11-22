@@ -1,0 +1,133 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
+
+<link rel="import" href="../../shared/shared-styles.html">
+
+<dom-module id="mis-aperturas">
+  <template>
+  <style include="shared-styles">
+  :host {
+    display: block;
+
+    padding: 10px;
+  }
+  card-header {
+    color: info-color;
+  }
+  paper-button.indigo {
+    background-color: var(--paper-indigo-500);
+    color: white;
+    --paper-button-raised-keyboard-focus: {
+      background-color: var(--paper-pink-a200) !important;
+      color: white !important;
+    };
+  }
+  </style>
+  <div class="card">
+    <div class="card-header"> </div>
+    <h2>Apertura de Cuentas</h2>
+
+    <iron-form id="form1">
+      <form action="/foo" method="get">
+        <paper-input type="text" name="name" required label="Name" value="" required></paper-input>
+        <br>
+        <paper-dropdown-menu label="Tipo de Cuenta" name="nameAccount" required>
+          <paper-listbox class="dropdown-content" slot="dropdown-content">
+            <paper-item value="ganadora">Cuenta Ganadora</paper-item>
+            <paper-item value="facil">Cuenta Fácil</paper-item>
+            <paper-item value="independencia">Cuenta Independencia</paper-item>
+            <paper-item value="sueldo">Cuenta Sueldo</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <paper-dropdown-menu label="moneda" name="moneda" required>
+          <paper-listbox class="dropdown-content" slot="dropdown-content">
+            <paper-item value="Soles">Soles</paper-item>
+            <paper-item value="Dólares">Dólares</paper-item>
+
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <br><br>
+        <paper-button raised on-click="handleClick" id="salida" class="custom indigo">Aperturar cuenta</paper-button>
+        <div name="nroAccount" id="nroAccount"></div>
+      </form>
+      <br>
+      <div class="output"></div>
+    </iron-form>
+
+    <!--<iron-ajax
+      auto
+      id="postAccounts"
+      method="GET"
+      url=""
+      params='[[params]]'
+      body="{{body}}"
+      handle-as="json"
+      on-response="handleResponse">-->
+    </template>
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MisAperturas extends Polymer.Element {
+      static get is() { return 'mis-aperturas'; }
+      static get properties() {
+        return {
+          userID:{
+            type: String,
+            value: function(){
+              return {
+                userID: "24"
+              }
+            }
+          },
+            cuentasParams:{
+              type: Object,
+              value: ''
+            },
+            body:{
+              type: Object
+            }
+          }
+
+        };
+
+      handleResponse(e){
+          console.log('response', e.detail.response);
+      }
+
+      getRandomArbitrary() {
+        let max = 9999999999;
+        let min = 1020548080;
+        return Math.random() * (max - min) + min;
+      }
+
+      handleClick(event) {
+        let s = Polymer.dom(this.root).querySelector("#form1");
+        //console.log(this.$.form1.serializeForm());
+
+        var nrocuenta = this.getRandomArbitrary();
+        //s.querySelector('#nroAccount').innerHTML = nrocuenta;
+        let body = JSON.stringify(this.$.form1.serializeForm())
+        this.$.postAccounts.body = body;
+        //this.params = {24}
+        this.$.postAccounts.generateRequest();
+        s.querySelector('.output').innerHTML = JSON.stringify(this.$.form1.serializeForm())
+      }
+
+    }
+
+
+
+    window.customElements.define(MisAperturas.is, MisAperturas);
+  </script>
+</dom-module>
