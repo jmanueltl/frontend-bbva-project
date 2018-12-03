@@ -1,8 +1,19 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
 
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../shared/shared-styles.html">
 
-<dom-module >
+<dom-module id="mis-transferencias">
   <template>
   <style include="shared-styles">
   :host {
@@ -11,9 +22,26 @@
     padding: 10px;
   }
   </style>
+  <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+
   <div class="card">
     <h2>Realizar Transferencias</h2>
-
+    <div>
+      <label>Cuenta de Abono</label>
+      <paper-dropdown-menu label="Tipo de Cuenta" name="nameAccount" on-iron-select="_itemSelected" required>
+        <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" value="[[account.nameAccount]]" >
+          <paper-item value="01">Cuenta Cte Natural</paper-item>
+          <paper-item value="01">Cuenta VIP</paper-item>
+          <paper-item value="02">Cuenta Ganadora</paper-item>
+          <paper-item value="02">Cuenta Fácil</paper-item>
+          <paper-item value="02">Cuenta Independencia</paper-item>
+          <paper-item value="02">Cuenta Sueldo</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </div>
+    <div>
+      <paper-checkbox noink>Checkbox</paper-checkbox>
+    </div>
     <div>
       <label>Monto a transferir</label>
       <iron-input  allowed-pattern="[0-9]" auto-validate>

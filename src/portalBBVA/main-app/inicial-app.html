@@ -1,6 +1,7 @@
 <link rel="import" href="../../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../login-user/login-user.html">
 <link rel="import" href="../main-app/main-app.html">
 
@@ -32,7 +33,7 @@
     <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
 
     <template is="dom-if" if="{{_isEqualTo(islog.isLogin, 'NOK')}}">
-      <login-user on-login-ok="login" email={{email}} password={{password}} ></login-user>
+      <login-user on-login-ok="login" email={{email}} password={{password}} api=[[api]]></login-user>
     </template>
 
     <template is="dom-if" if="{{_isEqualTo(islog.isLogin, 'OK')}}">
@@ -100,7 +101,10 @@
            },
             messageStyle: {
              type: String
-           }
+           },
+           userID: {
+            type: String
+          }
         };
       }
       static get observers(){
@@ -119,8 +123,8 @@
 
       logout(){
         var logoutData = {
-          "email" : this.islog.email
-        };
+          "userID" : this.islog.userID
+        }
         this.$.doLogout.body = JSON.stringify(logoutData);
         this.$.doLogout.generateRequest();
       }
@@ -131,6 +135,9 @@
         };
         this.email="";
         this.password="";
+        this.userID="";
+        this.nombres="";
+        this.apellidos="";
       }
 
       showErrorLogout(error) {
@@ -150,13 +157,15 @@
         this.islog = {
           "email":this.email,
           "isLogin":"OK",
-          "token":'Basic '+data.detail.response.token
+          "token":data.detail.response.token,
+          "userID": data.detail.response.userID,
+          "nombres": data.detail.response.nombre,
+          "apellidos": data.detail.response.apellidos
         }
-        console.log(data.detail.response);  //quitar luego
       }
 
       showErrorLogin(error) {
-        console.log("Error Login: "+error);
+        console.log("Error Login: "+error.target);
         this.messageStyle="alert alert-danger";
         this.message="Email o password incorrectos.";
         this.$.messageGlobal.open();

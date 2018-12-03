@@ -2,7 +2,7 @@
 <link rel="import" href="../../shared/shared-styles.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
-
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../mis-movimientos/mis-movimientos.html" />
 
 <dom-module id="mis-cuentas">
@@ -16,12 +16,10 @@
     </style>
 
     <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
-
     <div class="card">
       <h1>Mis cuentas</h1>
-      <div class="circule">1</div>
 
-      <iron-list items="[[response]]" as="item" id="xx">
+      <iron-list items="[[response]]" as="item">
         <template>
           <div id="t{{item.idAccount}}">
             <h2>{{item.nameAccount}} {{item.nroAccount}}</h2>
@@ -38,7 +36,7 @@
       auto
       id="getAccount"
       method="GET"
-      url='[[api.api_host]][[api.api_users]]/[[user.userID]]/[[api.api_accounts]]'
+      url='[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accounts]]'
       handle-as="json"
       on-response="showData"
       headers$='{"authorization": "{{islog.token}}"}'>
@@ -47,7 +45,10 @@
   <script>
 
     class MisCuentas extends Polymer.Element {
-      static get is() { return 'mis-cuentas'; }
+      static get is() {
+        //console.log('logt'+this.islog);
+        //this.user.userID = this.islog.userID;
+        return 'mis-cuentas'; }
       static get properties() {
         return {
           oculto: {
@@ -81,14 +82,12 @@
       }
 
       showData(data) {
-          console.log("showData");
-          console.log(this.api);
-          console.log(data.detail.response);
-          this.accounts = data.detail.response;
-          this.response = data.detail.response.transaction;
+          //console.log(data.detail.response);
+          //this.accounts = data.detail.response;
+          this.response = data.detail.response[0].account;
           //this.id = data.detail.response[0].first_name;
           //this.name = data.detail.response[0].userID;
-        }
+      }
 
       mostrarMovimientosComponent(){
         var item = Number(event.target.dataset.item)+1;

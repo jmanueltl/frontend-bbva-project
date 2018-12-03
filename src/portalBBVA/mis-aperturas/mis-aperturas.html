@@ -8,125 +8,197 @@
 <link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
 
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../shared/shared-styles.html">
 
 <dom-module id="mis-aperturas">
   <template>
   <style include="shared-styles">
-  :host {
-    display: block;
+    :host {
+      display: block;
 
-    padding: 10px;
-  }
-  card-header {
-    color: info-color;
-  }
-  paper-button.indigo {
-    background-color: var(--paper-indigo-500);
-    color: white;
-    --paper-button-raised-keyboard-focus: {
-      background-color: var(--paper-pink-a200) !important;
-      color: white !important;
-    };
-  }
+      padding: 10px;
+    }
+    card-header {
+      color: info-color;
+    }
+    paper-button.indigo {
+      background-color: var(--paper-indigo-500);
+      color: white;
+      --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-pink-a200) !important;
+        color: white !important;
+      };
+    }
+
   </style>
+
+  <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
   <div class="card">
-    <div class="card-header"> </div>
+    <div class="card-header"></div>
     <h2>Apertura de Cuentas</h2>
-
     <iron-form id="form1">
-      <form action="/foo" method="get">
-        <paper-input type="text" name="name" required label="Name" value="" required></paper-input>
-        <br>
-        <paper-dropdown-menu label="Tipo de Cuenta" name="nameAccount" required>
-          <paper-listbox class="dropdown-content" slot="dropdown-content">
-            <paper-item value="ganadora">Cuenta Ganadora</paper-item>
-            <paper-item value="facil">Cuenta Fácil</paper-item>
-            <paper-item value="independencia">Cuenta Independencia</paper-item>
-            <paper-item value="sueldo">Cuenta Sueldo</paper-item>
-          </paper-listbox>
-        </paper-dropdown-menu>
+      <form action="/foo" >
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4">
+              <paper-input type="text" disabled="true" name="producto" label="producto"  value="[[producto]]" style="width:20em" required ></paper-input>
+            </div>
+            <div class="col-md-4">
+              <paper-dropdown-menu label="Tipo de Cuenta" name="nameAccount" on-iron-select="_itemSelected" required>
+                <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" value="[[account.nameAccount]]" >
+                  <paper-item value="01">Cuenta Cte Natural</paper-item>
+                  <paper-item value="01">Cuenta VIP</paper-item>
+                  <paper-item value="02">Cuenta Ganadora</paper-item>
+                  <paper-item value="02">Cuenta Fácil</paper-item>
+                  <paper-item value="02">Cuenta Independencia</paper-item>
+                  <paper-item value="02">Cuenta Sueldo</paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
 
-        <paper-dropdown-menu label="moneda" name="moneda" required>
-          <paper-listbox class="dropdown-content" slot="dropdown-content">
-            <paper-item value="Soles">Soles</paper-item>
-            <paper-item value="Dólares">Dólares</paper-item>
-
-          </paper-listbox>
-        </paper-dropdown-menu>
-
+            <div class="col-md-4">
+                <paper-dropdown-menu label="moneda" name="moneda" required>
+                  <paper-listbox id="listMoneda" class="dropdown-content" slot="dropdown-content" value="[[account.moneda]]">
+                    <paper-item value="Soles">Soles</paper-item>
+                    <paper-item value="Dólares">Dólares</paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+            </div>
+            <div class="col-sm-4">
+                <paper-input type="Number" name="saldo" label="saldo"  value="[[saldo]]" style="width:20em" required ></paper-input>
+            </div>
+          </div>
+      </div>
         <br><br>
-        <paper-button raised on-click="handleClick" id="salida" class="custom indigo">Aperturar cuenta</paper-button>
-        <div name="nroAccount" id="nroAccount"></div>
+        <paper-button raised on-click="handleClick" id="salida" class="custom indigo" >Aperturar cuenta</paper-button>
+        <paper-input hidden="true" type="text" name="idProducto" label="producto" value="[[idProducto]]" required ></paper-input>
+        <paper-input hidden="true" type="text" name="nroAccount" label="nroAccount" value="[[nroAccount]]" required ></paper-input>
+        <paper-input hidden="true" type="text" name="fechaApertura" label="fechaApertura" value="[[fechaApertura]]" required ></paper-input>
+        <div><br>
+          <div hidden$="[[message]]" class="alert alert-danger" style="color:blue;"><br>
+          <strong>Usuario actualizado correctamente</strong>
+        </div>
       </form>
       <br>
       <div class="output"></div>
     </iron-form>
 
-    <!--<iron-ajax
-      auto
-      id="postAccounts"
-      method="GET"
-      url=""
-      params='[[params]]'
-      body="{{body}}"
+    <iron-ajax
+      id="doAccountPut"
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accounts]]
+      content-type="application/json"
+      method="PUT"
       handle-as="json"
-      on-response="handleResponse">-->
+      on-response="accountPutAJAXResponse"
+      on-error="showError"
+      headers$='{"authorization": "{{islog.token}}"}'>
+
     </template>
   <script>
-    /**
-     * @customElement
-     * @polymer
-     */
+
     class MisAperturas extends Polymer.Element {
       static get is() { return 'mis-aperturas'; }
       static get properties() {
         return {
-          userID:{
-            type: String,
-            value: function(){
-              return {
-                userID: "24"
-              }
-            }
-          },
-            cuentasParams:{
+            userID:{
+              type: String
+            },
+            account:{
               type: Object,
-              value: ''
+              value:{}
             },
             body:{
               type: Object
+            },
+            producto:{
+              type : String
+            },
+            idProducto:{
+              type: String
+            },
+            param: {
+              type: String,
+              value : '0011-0199-'
+            },
+            nroAccount:{
+              type: String
+            },
+            sado : {
+              type: Number
+            },
+            message:{
+              type: Boolean,
+              value: true
+            },
+            fechaApertura:{
+              type: String
             }
           }
-
         };
 
       handleResponse(e){
           console.log('response', e.detail.response);
       }
 
-      getRandomArbitrary() {
+      _itemSelected(e) {
+        var selectedItem = e.target.selectedItem.getAttribute("value");
+        this.idProducto = selectedItem;
+          switch(selectedItem)
+          {
+            case("01") :  this.producto = "Cuenta Corriente";break;
+            case("02") :  this.producto = "Cuenta Ahorros";break;
+            case("03") :  this.producto = "Cuenta CTS";break;
+          }
+
+      }
+
+      accountPutAJAXResponse(){
+        this.account.producto = "";
+        this.account.idProducto = "";
+        this.$.listMoneda.selected = null;
+        this.$.listAccount.selected = null;
+        this.nroAccount = "";
+        this.producto="";
+        this.idProducto="";
+        this.saldo="";
+        this.fechaApertura="";
+        this.message= false;
+      }
+
+      obtenerFechaApertura(){
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1;
+        var yyyy = today.getFullYear();
+
+        if(dd<10) {
+            dd = '0'+ dd
+        }
+
+        if(mm<10) {
+            mm = '0'+ mm
+        }
+        today = mm + '/' + dd + '/' + yyyy;
+        this.fechaApertura = today;
+      }
+      
+      generarNumeroCuenta() {
         let max = 9999999999;
         let min = 1020548080;
-        return Math.random() * (max - min) + min;
+        var nroCuenta = parseInt(Math.random() * (max - min) + min);
+        nroCuenta = this.param + nroCuenta.toString();
+        this.nroAccount = nroCuenta;
       }
 
       handleClick(event) {
-        let s = Polymer.dom(this.root).querySelector("#form1");
-        //console.log(this.$.form1.serializeForm());
-
-        var nrocuenta = this.getRandomArbitrary();
-        //s.querySelector('#nroAccount').innerHTML = nrocuenta;
-        let body = JSON.stringify(this.$.form1.serializeForm())
-        this.$.postAccounts.body = body;
-        //this.params = {24}
-        this.$.postAccounts.generateRequest();
-        s.querySelector('.output').innerHTML = JSON.stringify(this.$.form1.serializeForm())
+        this.generarNumeroCuenta();
+        this.obtenerFechaApertura();
+        this.$.doAccountPut.body = JSON.stringify(this.$.form1.serializeForm());
+        this.$.doAccountPut.generateRequest();
+        this.message= true;
       }
-
     }
-
-
 
     window.customElements.define(MisAperturas.is, MisAperturas);
   </script>
