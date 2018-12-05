@@ -21,34 +21,67 @@
 
     padding: 10px;
   }
+  paper-button.indigo {
+    background-color: var(--paper-indigo-500);
+    color: white;
+    --paper-button-raised-keyboard-focus: {
+      background-color: var(--paper-pink-a200) !important;
+      color: white !important;
+    };
+  }
   </style>
   <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
 
   <div class="card">
     <h2>Realizar Transferencias</h2>
-    <div>
-      <label>Cuenta de Abono</label>
-      <paper-dropdown-menu label="Tipo de Cuenta" name="nameAccount" on-iron-select="_itemSelected" required>
-        <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" value="[[account.nameAccount]]" >
-          <paper-item value="01">Cuenta Cte Natural</paper-item>
-          <paper-item value="01">Cuenta VIP</paper-item>
-          <paper-item value="02">Cuenta Ganadora</paper-item>
-          <paper-item value="02">Cuenta Fácil</paper-item>
-          <paper-item value="02">Cuenta Independencia</paper-item>
-          <paper-item value="02">Cuenta Sueldo</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </div>
-    <div>
-      <paper-checkbox noink>Checkbox</paper-checkbox>
-    </div>
-    <div>
-      <label>Monto a transferir</label>
-      <iron-input  allowed-pattern="[0-9]" auto-validate>
-        <input pattern="\d{3}" type="number" value={{monto::input}} placeholder="Monto a Transferir  "></input>
-      </iron-input>
-    </div>
+      <iron-form id="formCuestionario">
+        <div>
+          <paper-dropdown-menu label="Cuenta de cargo" name="nameAccount"  on-iron-select="_itemSelectedCargo" value="{{transfer.accountOrigin}}" style="width:30em" required>
+            <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" >
+              <template is="dom-repeat" items="[[response]]" as="item">
+               <paper-item>{{item.nroAccount}} - {{item.nameAccount}} - {{item.saldo}}</paper-item>
+             </template>
+            </paper-listbox>
+          </paper-dropdown-menu>
+        </div></br>
+        <div>
+          <paper-checkbox noink>A cuentas propias</paper-checkbox>
+          <paper-checkbox noink>A cuentas de terceros</paper-checkbox>
+          <paper-checkbox noink>A cuentas de otros bancos</paper-checkbox>
+        </div>
+        <div>
+          <paper-dropdown-menu label="Cuenta de abono" name="nameAccount" on-iron-select="_itemSelectedDestino" value="{{transfer.accountDestino}}" style="width:30em" required>
+            <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" >
+              <template is="dom-repeat" items="[[response]]" as="item">
+               <paper-item>{{item.nroAccount}} - {{item.nameAccount}} - {{item.saldo}}</paper-item>
+             </template>
+            </paper-listbox>
+          </paper-dropdown-menu>
+        </div>
+        </br>
+        <div>
+          <paper-dropdown-menu label="Moneda" name="moneda" on-iron-select="_itemSelectedMoneda" value="{{transfer.moneda}}" required>
+            <paper-listbox id="monedaMonto" class="dropdown-content" slot="dropdown-content">
+              <paper-item value="soles">Soles</paper-item>
+              <paper-item value="dolares">Dólares</paper-item>
+            </paper-listbox>
+          </paper-dropdown-menu>
+          </div>
+          <div>
+              <paper-input type="Number" name="monto" label="monto" value="{{transfer.monto}}" style="width:10em" required></paper-input>
+          </div>
+          <div>
+              <paper-input type="text" name="descripcion" label="descripcion" value="{{transfer.descripcion}}" style="width:20em" required></paper-input>
+          </div></br>
+          <div>
+            <paper-button raised on-click="_transferir"  class="custom indigo">Transferir</paper-button>
+          </div>
+          <paper-input hidden="true" type="text" name="dateTransfer" label="dateTransfer" value="{{transfer.dateTransfer}}" required ></paper-input>
+          <paper-input hidden="true" type="text" name="typeOperation" label="typeOperation" value="{{transfer.typeOperation}}" required ></paper-input>
 
+
+    </iron-form>
+  </div>
   <!--  <iron-input><input placeholder="type=date" type="date"></iron-input>
     <iron-input><input placeholder="disabled" disabled></iron-input>
 
@@ -64,25 +97,96 @@
     </demo-snippet>-->
     <iron-ajax
       auto
-      id="postTransferencias"
-       url="http://localhost:4000/APIperu/v1/users/18"
+      id="getAccountDropdown"
+      method="GET"
+      url='[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]'
       handle-as="json"
-      on-response="showData">
+      on-response="accountsDropdownAJAXResponse"
+      headers$='{"authorization": "{{islog.token}}"}'>
     </template>
   <script>
-    /**
-     * @customElement
-     * @polymer
-     */
+
     class MisTransferencias extends Polymer.Element {
       static get is() { return 'mis-transferencias'; }
       static get properties() {
         return {
           monto: {
             type: Number
-
-          }
+          },
+          islog: {
+           type: Object,
+           value: {}
+         },
+         api: {
+           type: Object
+         },
+         accountOrigin:{
+           type: String
+         },
+         accountDestino : {
+           type: String
+         },
+         moneda : {
+           type: String
+         },
+         dateTransf : {
+           type: String
+         },
+         transfer: {
+           type: Object,
+           value:{}
+         }
         };
+      }
+      handleClick(e){
+        var aa = e.target.getAttribute("value");
+        console.log(aa);
+      }
+
+      _itemSelectedCargo(e) {
+        var selectedItem = e.target.selectedItem.innerText;
+        selectedItem  = selectedItem.substr(0,20);
+        this.transfer.accountOrigin = selectedItem;
+      }
+
+      _itemSelectedDestino(e) {
+        var selectedItem = e.target.selectedItem.innerText;
+        selectedItem  = selectedItem.substr(0,20);
+        this.transfer.accountDestino = selectedItem;
+      }
+
+      _itemSelectedMoneda(e){
+        var selectedItem = e.target.selectedItem.getAttribute("value");
+        console.log(selectedItem);
+        this.transfer.moneda = selectedItem;
+      }
+      accountsDropdownAJAXResponse(data) {
+          this.response = data.detail.response[0].account;
+      }
+
+      obtenerFechaTransferencia(){
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1;
+        var yyyy = today.getFullYear();
+
+        if(dd<10) {
+            dd = '0'+ dd
+        }
+
+        if(mm<10) {
+            mm = '0'+ mm
+        }
+        today = mm + '/' + dd + '/' + yyyy;
+        this.transfer.dateTransfer = today;
+      }
+
+      _transferir(event){
+        this.obtenerFechaTransferencia();
+        this.transfer.typeOperation = 10;
+        console.log(JSON.stringify(this.transfer));
+        //this.$.doAccountPut.body = JSON.stringify(this.$.form1.serializeForm());
+        //this.$.doAccountPut.generateRequest();
       }
     }
 
