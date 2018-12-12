@@ -3,13 +3,14 @@
 <link rel="import" href="../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
-
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../shared/shared-styles.html">
 
@@ -35,6 +36,8 @@
   <div class="card">
     <h2>Realizar Transferencias</h2>
       <iron-form id="formCuestionario">
+        <paper-spinner alt="Cargando el usuario..." active="[[cargando]]"></paper-spinner>
+        <div hidden$="[[!cargando]]">cargando</div>
         <div>
           <paper-dropdown-menu label="Cuenta de cargo" name="nameAccount"  on-iron-select="_itemSelectedCargo" value="{{transfer.accountOrigin}}" style="width:30em" required>
             <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" >
@@ -45,13 +48,13 @@
           </paper-dropdown-menu>
         </div></br>
         <div>
-          <paper-checkbox noink>A cuentas propias</paper-checkbox>
-          <paper-checkbox noink>A cuentas de terceros</paper-checkbox>
-          <paper-checkbox noink>A cuentas de otros bancos</paper-checkbox>
+          <paper-checkbox id="10" on-tap="checkboxCheked1" value ="A cuentas propias" noink>A cuentas propias</paper-checkbox>
+          <paper-checkbox id="20" on-change="checkboxCheked2" value="A cuentas de terceros" noink>A cuentas de terceros</paper-checkbox>
+          <paper-checkbox id="30" on-change="checkboxCheked3" value="A cuentas de otros bancos" noink>A cuentas de otros bancos</paper-checkbox>
         </div>
         <div>
-          <paper-dropdown-menu label="Cuenta de abono" name="nameAccount" on-iron-select="_itemSelectedDestino" value="{{transfer.accountDestino}}" style="width:30em" required>
-            <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" >
+          <paper-dropdown-menu label="Cuenta de abono" name="nameAccount" on-iron-select="_itemSelectedDestino" value="{{transfer.accountDestination}}" style="width:30em" required>
+            <paper-listbox id="listAccountAbono" class="dropdown-content" slot="dropdown-content" >
               <template is="dom-repeat" items="[[response]]" as="item">
                <paper-item>{{item.nroAccount}} - {{item.nameAccount}} - {{item.saldo}}</paper-item>
              </template>
@@ -71,17 +74,33 @@
               <paper-input type="Number" name="monto" label="monto" value="{{transfer.monto}}" style="width:10em" required></paper-input>
           </div>
           <div>
-              <paper-input type="text" name="descripcion" label="descripcion" value="{{transfer.descripcion}}" style="width:20em" required></paper-input>
+              <paper-input type="text" name="description" label="description" value="{{transfer.description}}" style="width:20em" required></paper-input>
           </div></br>
           <div>
             <paper-button raised on-click="_transferir"  class="custom indigo">Transferir</paper-button>
           </div>
           <paper-input hidden="true" type="text" name="dateTransfer" label="dateTransfer" value="{{transfer.dateTransfer}}" required ></paper-input>
           <paper-input hidden="true" type="text" name="typeOperation" label="typeOperation" value="{{transfer.typeOperation}}" required ></paper-input>
-
-
+          <paper-input hidden="true" type="text" name="nameOperation" label="nameOperation" value="{{transfer.nameOperation}}" required ></paper-input>
+          <paper-input hidden="true" type="text" name="operation" label="operation" value="{{transfer.operation}}" required ></paper-input>
     </iron-form>
   </div>
+
+  <div>
+    <paper-dialog id='popLocalConfirm' on-iron-overlay-opened="patchOverlay" modal>
+    <paper-button dialog-dismiss class="paper-buton-close"> X </paper-button>
+    <div class="card"><center>
+      <img src="../../../images/confirma.png" class="img-fluid" alt="Responsive image" style="width:50%"></center>
+          <div>
+            <center><label style="color:blue">Transacción realizada con éxito</label></center>
+          </div>
+        </br>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Aceptar</paper-button>
+      </div>
+    </div>
+     </paper-dialog>
+   </div>
   <!--  <iron-input><input placeholder="type=date" type="date"></iron-input>
     <iron-input><input placeholder="disabled" disabled></iron-input>
 
@@ -99,31 +118,42 @@
       auto
       id="getAccountDropdown"
       method="GET"
-      url='[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]'
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]
       handle-as="json"
       on-response="accountsDropdownAJAXResponse"
+      on-error="showError"
+      loading="{{cargando}}"
+      headers$='{"authorization": "{{islog.token}}"}'>
+
+    <iron-ajax
+      id="putAccountTransfer"
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountTransaction]]
+      content-type="application/json"
+      method="PUT"
+      handle-as="json"
+      on-response="accountsTransferAJAXResponse"
+      on-error="showError"
       headers$='{"authorization": "{{islog.token}}"}'>
     </template>
-  <script>
 
+
+  <script>
     class MisTransferencias extends Polymer.Element {
       static get is() { return 'mis-transferencias'; }
       static get properties() {
         return {
-          monto: {
-            type: Number
-          },
           islog: {
            type: Object,
            value: {}
          },
          api: {
-           type: Object
+           type: Object,
+           value: {}
          },
          accountOrigin:{
            type: String
          },
-         accountDestino : {
+         accountDestination : {
            type: String
          },
          moneda : {
@@ -134,13 +164,16 @@
          },
          transfer: {
            type: Object,
-           value:{}
+           value: {}
          }
         };
       }
       handleClick(e){
         var aa = e.target.getAttribute("value");
-        console.log(aa);
+      }
+
+      static get observers() {
+          return [];
       }
 
       _itemSelectedCargo(e) {
@@ -152,16 +185,49 @@
       _itemSelectedDestino(e) {
         var selectedItem = e.target.selectedItem.innerText;
         selectedItem  = selectedItem.substr(0,20);
-        this.transfer.accountDestino = selectedItem;
+        this.transfer.accountDestination = selectedItem;
       }
 
       _itemSelectedMoneda(e){
         var selectedItem = e.target.selectedItem.getAttribute("value");
-        console.log(selectedItem);
         this.transfer.moneda = selectedItem;
       }
+
+      checkboxCheked1(e){
+        if(e.target.checked) {
+            this.transfer.typeOperation = 10;
+            this.transfer.nameOperation = e.target.value;
+        }
+      }
+
+      checkboxCheked2(e){
+        if(e.target.checked) {
+            this.transfer.typeOperation = 20;
+            this.transfer.nameOperation = e.target.value;
+        }
+      }
+
+      checkboxCheked3(e){
+        if(e.target.checked) {
+            this.transfer.typeOperation = 30;
+            this.transfer.nameOperation = e.target.value;
+        }
+      }
+
       accountsDropdownAJAXResponse(data) {
-          this.response = data.detail.response[0].account;
+          this.response = data.detail.response.account;
+      }
+
+      accountsTransferAJAXResponse(data){
+        this.$.popLocalConfirm.open();
+        this.transfer = {};
+        this.$.getAccountDropdown.generateRequest();
+      }
+
+      patchOverlay(e) {
+        if (e.target.withBackdrop) {
+          e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+        }
       }
 
       obtenerFechaTransferencia(){
@@ -177,16 +243,23 @@
         if(mm<10) {
             mm = '0'+ mm
         }
-        today = mm + '/' + dd + '/' + yyyy;
+        today = mm + '-' + dd + '-' + yyyy;
         this.transfer.dateTransfer = today;
+        this.transfer.operation = "Transferencias";
       }
 
       _transferir(event){
         this.obtenerFechaTransferencia();
-        this.transfer.typeOperation = 10;
+        this.transfer.email = this.islog.email;
         console.log(JSON.stringify(this.transfer));
-        //this.$.doAccountPut.body = JSON.stringify(this.$.form1.serializeForm());
-        //this.$.doAccountPut.generateRequest();
+        this.$.putAccountTransfer.body = JSON.stringify(this.transfer);
+        this.$.putAccountTransfer.generateRequest();
+      }
+
+      showError(e) {
+        const req = e.detail.request;
+        console.log('status code', req.status);
+        console.log('status text', req.statusText);
       }
     }
 

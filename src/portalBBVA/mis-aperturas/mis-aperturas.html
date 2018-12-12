@@ -75,14 +75,27 @@
         <paper-input hidden="true" type="text" name="idProducto" label="producto" value="[[idProducto]]" required ></paper-input>
         <paper-input hidden="true" type="text" name="nroAccount" label="nroAccount" value="[[nroAccount]]" required ></paper-input>
         <paper-input hidden="true" type="text" name="fechaApertura" label="fechaApertura" value="[[fechaApertura]]" required ></paper-input>
-        <div><br>
-          <div hidden$="[[message]]" class="alert alert-danger" style="color:blue;"><br>
-          <strong>Usuario actualizado correctamente</strong>
-        </div>
+
       </form>
       <br>
       <div class="output"></div>
     </iron-form>
+
+    <div>
+      <paper-dialog id='popLocalConfirm' on-iron-overlay-opened="patchOverlay" modal>
+      <paper-button dialog-dismiss class="paper-buton-close"> X </paper-button>
+      <div class="card"><center>
+        <img src="../../../images/confirma.png" class="img-fluid" alt="Responsive image" style="width:50%"></center>
+        <div>
+          <center><label style="color:blue">{{message}}</label></center>
+        </div>
+          </br>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Aceptar</paper-button>
+        </div>
+      </div>
+       </paper-dialog>
+     </div>
 
     <iron-ajax
       id="doAccountPut"
@@ -156,14 +169,26 @@
       accountPutAJAXResponse(){
         this.account.producto = "";
         this.account.idProducto = "";
-        this.$.listMoneda.selected = null;
-        this.$.listAccount.selected = null;
+        this.$.listMoneda.selected = "";
+        this.$.listAccount.selected = "";
         this.nroAccount = "";
         this.producto="";
         this.idProducto="";
         this.saldo="";
         this.fechaApertura="";
-        this.message= false;
+        this.message= "Apertura realizada con éxito";
+        this.$.popLocalConfirm.open();
+      }
+
+      showError(){
+        this.message= "No se realizó la apertura, Error";
+        this.$.popLocalConfirm.open();
+      }
+
+      patchOverlay(e) {
+        if (e.target.withBackdrop) {
+          e.target.parentNode.insertBefore(e.target.backdropElement, e.target);
+        }
       }
 
       obtenerFechaApertura(){
@@ -179,10 +204,10 @@
         if(mm<10) {
             mm = '0'+ mm
         }
-        today = mm + '/' + dd + '/' + yyyy;
+        today = mm + '-' + dd + '-' + yyyy;
         this.fechaApertura = today;
       }
-      
+
       generarNumeroCuenta() {
         let max = 9999999999;
         let min = 1020548080;

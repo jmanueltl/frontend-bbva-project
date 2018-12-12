@@ -1,0 +1,68 @@
+<link rel="import" href="../../../bower_components/google-apis/index.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/google-chart/google-chart.html">
+
+<link rel="import" href="../../../bower_components/promise-polyfill/promise-polyfill-lite.html">
+<link rel="import" href="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></link>
+<link rel="import" href="../../shared/shared-styles.html">
+
+<dom-module id="charts-grafics">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+
+      google-chart {
+        height: 300px;
+        width: 50em;
+      }
+    </style>
+
+    <div class="wrapper">
+      <google-chart
+        type='pie'
+        options='{"title": "Distribution of days in 2001Q1"}'
+        cols='[{"label":"Month", "type":"string"}, {"label":"Days", "type":"number"}]'
+        rows='[["Jan", 31],["Feb", 28],["Mar", 31]]'>
+      </google-chart>
+    </div>
+
+  </template>
+
+  <script>
+    class ChartsGrafics extends Polymer.Element {
+      static get is() { return 'charts-grafics'; }
+
+      static get properties() {
+        return {
+            data: {
+              type: Array,
+              notify: true
+            },
+
+            options: {
+              type: Object,
+              notify: true
+            }
+          }
+      }
+
+      ready(){
+        console.log('my-gauge is ready')
+      }
+
+      attached(){
+        this.async(this.notifyResize, 1);
+
+      }
+
+      _onIronResize(){
+      }
+
+      chartLoaded() {
+        console.log('google gauge chart is loaded')
+      }
+    }
+  </script>
+</dom-module>

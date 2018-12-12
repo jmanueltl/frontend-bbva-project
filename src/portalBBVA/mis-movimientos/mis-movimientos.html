@@ -1,5 +1,8 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
+
 <link rel="import" href="../../shared/shared-styles.html">
 
 <dom-module id="mis-movimientos">
@@ -9,7 +12,12 @@
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <h2>Hello </h2>
+    <iron-list items="[[movimi]]" as="item">
+      <template>
+          <h2>{{item.description}} {{item.monto}}  {{item.dateTransfer}}</h2>
+      </template>
+    </iron-list>
   </template>
 
   <script>

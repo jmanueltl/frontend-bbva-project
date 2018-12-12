@@ -41,7 +41,9 @@
               <paper-button  raised on-tap="_Delete" class="custom indigo">Eliminar Usuario</paper-button>
 
             </div>
+
             <br><br>
+
             <div class="col-sm-8">
               <div>
                 <div hidden$="[[oculto]]" id="insertarUsuario">
@@ -113,8 +115,8 @@
 
       <iron-ajax
         id="doUserDelete"
-        url=[[api.api_host]][[api.api_users]]/[[user.userID]]
-        content-type=""
+        url=[[api.api_host]][[api.api_users]]/[[islog.userID]]
+        content-type="application/json"
         method="DELETE"
         handle-as=""
         on-response="userDeleteAJAXResponse"
@@ -136,7 +138,8 @@
           },
           user: {
             type: Object,
-            value:{}
+            value:{},
+            notify: true
           },
           isInsert: {
             type: Boolean,
@@ -148,7 +151,8 @@
           },
           islog: {
            type: Object,
-           value: {}
+           value: {},
+           notify:true
          },
          message:{
            type: Boolean,
@@ -221,6 +225,10 @@
         this.$.doUserGet.generateRequest();
         //poner this.islog y setear  el nombre y apellido
         this.message = false;
+      }
+
+      showError(error) {
+        console.log(error.target);
       }
 
     }

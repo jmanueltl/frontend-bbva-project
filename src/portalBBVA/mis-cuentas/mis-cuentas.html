@@ -1,9 +1,28 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../shared/shared-styles.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
 <link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="../mis-movimientos/mis-movimientos.html" />
+
+<link rel="import" href="../../../bower_components/webcomponentsjs/webcomponents-lite.js">
+<link rel="import" href="../../../bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+<link rel="import" href="../../../bower_components/iron-demo-helpers/demo-snippet.html">
+<link rel="import" href="../../../bower_components/shadycss/apply-shim.html">
+<link rel="import" href="../../../bower_components/polymer/lib/elements/custom-style.html">
+
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
+
+
+<link rel="import" href="../../../bower_components/exmg/exmg-datatable.html">
+<link rel="import" href="../../../bower_components/exmg/exmg-thead.html">
+<link rel="import" href="../../../bower_components/exmg/exmg-tbody.html">
+<link rel="import" href="../../../bower_components/exmg/exmg-data-helper.html">
+<link rel="import" href="../../../bower_components/exmg/exmg-icons.html">
 
 <dom-module id="mis-cuentas">
   <template>
@@ -13,32 +32,130 @@
 
       padding: 10px;
     }
+
+    paper-card {
+      display: block;
+      max-width: 936px;
+      margin: auto;
+      width: 100%;
+      --paper-card-background-color: white;
+    }
+
+    h2,
+      .buttons {
+        max-width: 936px;
+        width: 100%;
+        margin: 20px auto;
+      }
+
+    paper-button.indigo {
+      background-color: var(--paper-indigo-500);
+      color: white;
+      --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-pink-a200) !important;
+        color: white !important;
+      };
+    }
     </style>
 
     <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
     <div class="card">
       <h1>Mis cuentas</h1>
+      <exmg-datatable>
+          <!-- THead -->
+          <exmg-thead sorted="{{sorted}}" sort-direction="{{sortDirection}}">
+            <template>
+              <div class="tr">
+                <div class="th flex" sortable="Cuenta">
+                  <span>Cuenta</span>
+                </div>
+                <div class="th flex" sortable="Saldo">
+                  <span>Saldo</span>
+                </div>
+                <div class="th flex" sortable="Nro Cuenta">
+                  <span>Nro Cuenta</span>
+                </div>
 
-      <iron-list items="[[response]]" as="item">
-        <template>
-          <div id="t{{item.idAccount}}">
-            <h2>{{item.nameAccount}} {{item.nroAccount}}</h2>
-            <h3>saldo : {{item.saldo}}</h3>
-            <h4><button on-click="mostrarMovimientosComponent" data-item$ ="[[index]]" > Ver movimientos</button></h4>
-            <div hidden$="[[oculto]]" id="mov{{item.idAccount}}">
-              <mis-movimientos api=[[api]] user=[[user]] account=[[account]] is_mov={{is_mov}}></mis-movimientos>
-            </div>
-          </div>
-        </template>
-      </iron-list>
+                <div class="th flex-none" style="width: 100px"></div>
+              </div>
+            </template>
+          </exmg-thead>
+          <!-- TBody -->
+          <exmg-tbody items='[[items]]' selection-enabled multi-selection>
+            <template>
+              <div class$="[[_computedClass(selected)]]" aria-expand$="[[selected]]">
+                <div class="td flex">
+                  <span>[[item.nameAccount]]</span>
+                </div>
+                <div class="td flex">
+                  <span>[[item.saldo]]</span>
+                </div>
+                <div class="td flex">
+                  <span>[[item.nroAccount]]</span>
+                </div>
+                <div class="td flex-none hover" style="width: 120px">
+                  <span>
+                    <span>
+                      <paper-icon-button icon="exmg-icons:search"></paper-icon-button>
+                      <paper-tooltip>Ver movimientos</paper-tooltip>
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="tr flex expandable"  aria-expanded$="[[selected]]">
+                  <exmg-datatable>
+                    <h2>Mis Movimientos</h2>
+                        <exmg-thead>
+                          <template>
+                            <div class="tr">
+                              <div class="th flex">
+                                <span>Fecha de Transferencia</span>
+                              </div>
+                              <div class="th flex">
+                                <span>Descripción</span>
+                              </div>
+                              <div class="th flex">
+                                <span>Monto</span>
+                              </div>
+                              <div class="th flex-none" style="width: 100px"></div>
+                            </div>
+                        </template>
+                        </exmg-thead>
+                        <exmg-tbody items='[[item.transaction]]' as="transfer" >
+                          <template>
+                            <div class$="[[_computedClass(selected)]]" aria-expand$="[[selected]]">
+                                <div class="td flex">
+                                  <span>[[transfer.dateTransfer]]</span>
+                                </div>
+                                <div class="td flex">
+                                  <span>[[transfer.description]]</span>
+                                </div>
+                                <div class="td flex">
+                                  <span>[[transfer.monto]]</span>
+                                </div>
+                                <div class="td flex-none hover" style="width: 100px"></div>
+                              </div>
+                          </template>
+                        </exmg-tbody>
+                        <paper-button>close</paper-button>
+                  </exmg-datatable>
+                </div>
+
+              </div>
+            </template>
+          </exmg-tbody>
+        </exmg-datatable>
+        <exmg-data-helper raw-items="[[rawItems.account]]" items="{{items}}" page-index="[[pageIndex]]" page-size="[[pageSize]]" sorted="[[sorted]]" sort-direction="[[sortDirection]]"></exmg-data-helper>
 
     <iron-ajax
       auto
       id="getAccount"
       method="GET"
-      url='[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accounts]]'
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]
       handle-as="json"
       on-response="showData"
+      last-response="{{rawItems.account}}"
       headers$='{"authorization": "{{islog.token}}"}'>
   </template>
 
@@ -46,61 +163,82 @@
 
     class MisCuentas extends Polymer.Element {
       static get is() {
-        //console.log('logt'+this.islog);
         //this.user.userID = this.islog.userID;
         return 'mis-cuentas'; }
       static get properties() {
         return {
-          oculto: {
-            type: Boolean,
-            value: true
-          },
-          user: {
-            type: Object,
-            value:{}
-          },
-          is_mov: {
-            type: String,
-            value:"NOK"
-          },
-          api: {
-            type: Object
-          },
-          account: {
-            type: Object,
-            value: {}
-          },
-          is_account: {
-            type: String,
-            notify: true
-          },
-          islog: {
-           type: Object,
-           value: {}
-          }
+          pageIndex: {
+              type: Number,
+              value: 0
+            },
+            pageSize: {
+              type: Number,
+              value: 10
+            },
+            sorted: {
+              type: String,
+              value: 'Cuenta'
+            },
+            sortDirection: {
+              type: String,
+              value: 'ASC'
+            },
+            items: {
+              type: Array,
+              value: function() {
+                return [];
+              },
+              notify: true
+            },
+            rawItems: {
+              type: Array,
+              value: function() {
+                return [];
+              },
+              notify: true
+            },
+            oculto: {
+              type: Boolean,
+              value: true
+            },
+            user: {
+              type: Object,
+              value: function() {
+                return [];
+              },
+              notify: true
+            },
+            is_mov: {
+              type: String,
+              value:"NOK"
+            },
+            api: {
+              type: Object
+            },
+            islog: {
+             type: Object,
+             value: function() {
+               return [];
+             },
+             notify: true
+            }
         };
       }
 
-      showData(data) {
-          //this.accounts = data.detail.response;
-          this.response = data.detail.response[0].account;
-          //this.id = data.detail.response[0].first_name;
-          //this.name = data.detail.response[0].userID;
+      static get observers() {
+          return [];
       }
 
-      mostrarMovimientosComponent(){
-        var item = Number(event.target.dataset.item)+1;
-        let s = Polymer.dom(this.root).querySelector("#mov"+item);
+      _computedClass(isSelected) {
+          let classes = 'tr item';
+          if (isSelected) {
+            classes += ' selected';
+          }
+          return classes;
+      }
 
-        if(s.style.display == "none"){
-          s.style.display = "block";
-        }
-        else if(s.style.display == "block"){
-          s.style.display = "none";
-        }
-        else {
-          s.style.display = "block";
-        }
+      showData(data) {
+          this.rawItems = data.detail.response;
       }
     }
 
