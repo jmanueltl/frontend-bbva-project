@@ -1,0 +1,62 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
+<link rel="import" href="../../../bower_components/iron-list/iron-list.html" />
+<link rel="import" href="../../../bower_components/promise-polyfill/promise-polyfill-lite.html">
+<link rel="import" href="../../../bower_components/google-chart/google-chart.html">
+<link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
+<link rel="import" href="../../shared/shared-styles.html">
+
+<dom-module id="mis-reportes">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+
+      google-chart {
+      height: 400px;
+      width: 500px;
+      }
+    </style>
+    <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+    <div class="card">
+      <h2>Manager BBVA</h2>
+
+      <google-chart
+        id="piechart_3d"
+        type="column"
+        options='{"title": "Responsive chart",
+                  "vAxis": {"minValue" : 0, "maxValue": 10}}'
+        cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
+        rows='[ ["Cuenta Fácil", 5.0],["Cuenta Ganadora", 10.0],["Col3", 5.0] ]'>
+      </google-chart>
+      <google-chart
+        type="column"
+        options='{"title": "Inventory"}'
+        data='[["Fecha", "Ingresos", "Egresos"],
+               ["Set", 7000, 2400],
+               ["Oct", 11170, 8460],
+               ["Nov", 6660, 6120],
+               ["Dic", 7030, 5540]]'>
+      </google-chart>
+    </div>
+  </template>
+
+  <script>
+    class MisReportes extends Polymer.Element {
+      static get is() { return 'mis-reportes'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'movimientos'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(MisReportes.is, MisReportes);
+  </script>
+</dom-module>

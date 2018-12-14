@@ -1,5 +1,4 @@
 <link rel="import" href="../../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
@@ -19,7 +18,6 @@
   <style include="shared-styles">
   :host {
     display: block;
-
     padding: 10px;
   }
   paper-button.indigo {
@@ -32,7 +30,6 @@
   }
   </style>
   <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
-
   <div class="card">
     <h2>Realizar Transferencias</h2>
       <iron-form id="formCuestionario">
@@ -48,18 +45,23 @@
           </paper-dropdown-menu>
         </div></br>
         <div>
-          <paper-checkbox id="10" on-tap="checkboxCheked1" value ="A cuentas propias" noink>A cuentas propias</paper-checkbox>
+          <paper-checkbox id="10" on-change="checkboxCheked1" value ="A cuentas propias" noink>A cuentas propias</paper-checkbox>
           <paper-checkbox id="20" on-change="checkboxCheked2" value="A cuentas de terceros" noink>A cuentas de terceros</paper-checkbox>
           <paper-checkbox id="30" on-change="checkboxCheked3" value="A cuentas de otros bancos" noink>A cuentas de otros bancos</paper-checkbox>
         </div>
         <div>
-          <paper-dropdown-menu label="Cuenta de abono" name="nameAccount" on-iron-select="_itemSelectedDestino" value="{{transfer.accountDestination}}" style="width:30em" required>
-            <paper-listbox id="listAccountAbono" class="dropdown-content" slot="dropdown-content" >
-              <template is="dom-repeat" items="[[response]]" as="item">
-               <paper-item>{{item.nroAccount}} - {{item.nameAccount}} - {{item.saldo}}</paper-item>
-             </template>
-            </paper-listbox>
-          </paper-dropdown-menu>
+          <div hidden$="[[ownAccount]]">
+            <paper-dropdown-menu label="Cuenta de abono" name="nameAccount" on-iron-select="_itemSelectedDestino" value="{{transfer.accountDestination}}" style="width:30em" required>
+              <paper-listbox id="listAccountAbono" class="dropdown-content" slot="dropdown-content" >
+                <template is="dom-repeat" items="[[response]]" as="item">
+                 <paper-item>{{item.nroAccount}} - {{item.nameAccount}} - {{item.saldo}}</paper-item>
+               </template>
+              </paper-listbox>
+            </paper-dropdown-menu>
+        </div>
+          <div hidden$="[[otherAccount]]">
+            <paper-input type="text" name="nameAccountOther" label="Cuenta de abono" value="{{transfer.accountDestination}}" style="width:20em" required></paper-input>
+          </div>
         </div>
         </br>
         <div>
@@ -92,13 +94,13 @@
     <div class="card"><center>
       <img src="../../../images/confirma.png" class="img-fluid" alt="Responsive image" style="width:50%"></center>
           <div>
-            <center><label style="color:blue">Transacción realizada con éxito</label></center>
+            <center><label style="color:blue">{{message}}</label></center>
           </div>
         </br>
       <div class="buttons">
         <paper-button dialog-dismiss>Aceptar</paper-button>
       </div>
-    </div>
+      </div>
      </paper-dialog>
    </div>
   <!--  <iron-input><input placeholder="type=date" type="date"></iron-input>
@@ -115,14 +117,22 @@
       </template>
     </demo-snippet>-->
     <iron-ajax
-      auto
+      id="other"
+      url=[[api.api_host]][[api.api_otherTransaction]]
+      content-type="application/json"
+      method="PUT"
+      handle-as="json"
+      on-response="accountsTransferOtherAJAXResponse"
+      on-error="showError"
+      headers$='{"authorization": "{{islog.token}}"}'>
+
+    <iron-ajax
       id="getAccountDropdown"
       method="GET"
-      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]
+      auto url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]
       handle-as="json"
       on-response="accountsDropdownAJAXResponse"
       on-error="showError"
-      loading="{{cargando}}"
       headers$='{"authorization": "{{islog.token}}"}'>
 
     <iron-ajax
@@ -135,7 +145,6 @@
       on-error="showError"
       headers$='{"authorization": "{{islog.token}}"}'>
     </template>
-
 
   <script>
     class MisTransferencias extends Polymer.Element {
@@ -165,6 +174,20 @@
          transfer: {
            type: Object,
            value: {}
+         },
+         message : {
+           type: String
+         },
+         ownAccount:{
+           type: Boolean,
+           value: false
+         },
+         otherAccount:{
+           type: Boolean,
+           value: true
+         },
+         useridd:{
+           type: String
          }
         };
       }
@@ -197,13 +220,26 @@
         if(e.target.checked) {
             this.transfer.typeOperation = 10;
             this.transfer.nameOperation = e.target.value;
+            this.ownAccount= false;
+            this.otherAccount= true;
         }
+        else {
+            this.ownAccount= false;
+            this.otherAccount= true;
+        }
+
       }
 
       checkboxCheked2(e){
         if(e.target.checked) {
             this.transfer.typeOperation = 20;
             this.transfer.nameOperation = e.target.value;
+            this.otherAccount= false;
+            this.ownAccount= true;
+        }
+        else {
+            this.otherAccount= true;
+            this.ownAccount= false;
         }
       }
 
@@ -219,6 +255,16 @@
       }
 
       accountsTransferAJAXResponse(data){
+        this.message = "Transacción entre mis cuentas realizada con éxito";
+        this.transfer.typeOperation = 0;
+        this.$.popLocalConfirm.open();
+        this.transfer = {};
+        this.$.getAccountDropdown.generateRequest();
+      }
+
+      accountsTransferOtherAJAXResponse(data){
+        this.message = "Transacción a otra cuenta realizada con éxito";
+        this.transfer.typeOperation = 0;
         this.$.popLocalConfirm.open();
         this.transfer = {};
         this.$.getAccountDropdown.generateRequest();
@@ -251,9 +297,20 @@
       _transferir(event){
         this.obtenerFechaTransferencia();
         this.transfer.email = this.islog.email;
-        console.log(JSON.stringify(this.transfer));
-        this.$.putAccountTransfer.body = JSON.stringify(this.transfer);
-        this.$.putAccountTransfer.generateRequest();
+        let operationType = this.transfer.typeOperation;
+        switch(operationType){
+          case 10: {
+                      this.$.putAccountTransfer.body = JSON.stringify(this.transfer);
+                      this.$.putAccountTransfer.generateRequest();
+                      break;
+                    }
+          case 20: {
+                      this.$.other.body = JSON.stringify(this.transfer);
+                      this.$.other.generateRequest();
+                      break;
+                    }
+        }
+        operationType = 0;
       }
 
       showError(e) {

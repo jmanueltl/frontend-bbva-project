@@ -113,15 +113,13 @@
       on-error="showError"
       headers$='{"authorization": "{{islog.token}}"}'>
 
-      <iron-ajax
-        id="doUserDelete"
-        url=[[api.api_host]][[api.api_users]]/[[islog.userID]]
-        content-type="application/json"
-        method="DELETE"
-        handle-as=""
-        on-response="userDeleteAJAXResponse"
-        on-error="showError"
-        headers$='{"authorization": "{{islog.token}}"}'>
+    <iron-ajax
+      id="doUserDelete"
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]
+      method="DELETE"
+      on-response="userDeleteAJAXResponse"
+      on-error="showError"
+      headers$='{"authorization": "{{islog.token}}"}'>
   </template>
 
   <script>

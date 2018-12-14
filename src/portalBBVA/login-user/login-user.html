@@ -129,7 +129,13 @@
         this.$.popLocal.open();
       }
 
+      showError(e){
+        const req = e.detail.request;
+        console.log('status code', req.status);
+        console.log('status text', req.statusText);
+      }
       _InsertService(){
+        this.$.doUserPost.body = JSON.stringify(this.user);
         this.$.doUserPost.generateRequest();
       }
 

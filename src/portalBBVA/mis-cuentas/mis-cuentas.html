@@ -153,6 +153,7 @@
       id="getAccount"
       method="GET"
       url=[[api.api_host]][[api.api_users]]/[[islog.userID]]
+      content-type="application/json"
       handle-as="json"
       on-response="showData"
       last-response="{{rawItems.account}}"
