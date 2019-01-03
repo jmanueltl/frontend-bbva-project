@@ -164,7 +164,6 @@
 
     class MisCuentas extends Polymer.Element {
       static get is() {
-        //this.user.userID = this.islog.userID;
         return 'mis-cuentas'; }
       static get properties() {
         return {
@@ -219,7 +218,7 @@
             islog: {
              type: Object,
              value: function() {
-               return [];
+               return {};
              },
              notify: true
             }
@@ -227,7 +226,10 @@
       }
 
       static get observers() {
-          return [];
+          return ['changed(rawItems)'];
+      }
+
+      changed(rawItems){
       }
 
       _computedClass(isSelected) {
@@ -239,6 +241,7 @@
       }
 
       showData(data) {
+          setTimeout(() => this.$.getAccount.generateRequest(), 5000);
           this.rawItems = data.detail.response;
       }
     }

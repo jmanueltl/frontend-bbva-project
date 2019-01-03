@@ -57,7 +57,7 @@
     }
     </style>
 
-    <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+    <app-localstorage-document id="localstorage" key="data.local" data="{{islog}}"></app-localstorage-document>
 
 
     <app-location route="{{route}}"></app-location>
@@ -91,7 +91,6 @@
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Bienvenidos a la nueva banca móvil</div>
             <br>
-            <div>Hola {{islog.nombres}} {{islog.apellidos}}</div>
           </app-toolbar>
         </app-header>
 
@@ -104,15 +103,13 @@
           <mis-reportes name="mis-reportes" api=[[api]]></mis-reportes>
           <mis-transferencias name="mis-transferencias" api=[[api]]></mis-transferencias>
           <mis-aperturas name="mis-aperturas" api=[[api]]></mis-aperturas>
-          <gestion-usuarios name="gestion-usuarios" api=[[api]]></gestion-usuarios>
+          <gestion-usuarios name="gestion-usuarios" api=[[api]] islog={{islog}}></gestion-usuarios>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
-
   </template>
 
   <script>
-
     class MainApp extends Polymer.Element {
       static get is() {
         return 'main-app';
@@ -124,13 +121,16 @@
           },
           api:{
             type:Object,
-            value: {},
             notify: true
           },
           menu: {
            type: String,
            value:"00"
-         }
+          },
+          islog: {
+             type: Object,
+             value:{}
+          }
         };
       }
 
@@ -145,7 +145,6 @@
       _changeMenu() {
         this.menu= "01";
       }
-
     }
 
     window.customElements.define(MainApp.is, MainApp);

@@ -5,43 +5,47 @@
 <link rel="import" href="../../../bower_components/promise-polyfill/promise-polyfill-lite.html">
 <link rel="import" href="../../../bower_components/google-chart/google-chart.html">
 <link rel="import" href="../../../bower_components/web-animations-js/web-animations-next-lite.min.js">
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../shared/shared-styles.html">
 
 <dom-module id="mis-reportes">
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
         padding: 10px;
       }
 
       google-chart {
-      height: 400px;
-      width: 500px;
+        height: 400px;
+        width: 600px;
       }
+
     </style>
     <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
     <div class="card">
       <h2>Manager BBVA</h2>
 
-      <google-chart
-        id="piechart_3d"
-        type="column"
-        options='{"title": "Responsive chart",
-                  "vAxis": {"minValue" : 0, "maxValue": 10}}'
-        cols='[{"label": "Data", "type": "string"},{"label": "Value", "type": "number"}]'
-        rows='[ ["Cuenta Fácil", 5.0],["Cuenta Ganadora", 10.0],["Col3", 5.0] ]'>
-      </google-chart>
-      <google-chart
-        type="column"
-        options='{"title": "Inventory"}'
-        data='[["Fecha", "Ingresos", "Egresos"],
-               ["Set", 7000, 2400],
-               ["Oct", 11170, 8460],
-               ["Nov", 6660, 6120],
-               ["Dic", 7030, 5540]]'>
-      </google-chart>
+      <center>
+        <div class="wrapper">
+          <google-chart
+            type="column"
+            options='{"title": "Balance Mensual"}'
+            data='{{data}}'>
+          </google-chart>
+        </div>
+      </center>
     </div>
+
+    <iron-ajax
+      auto
+      id="getReporting"
+      url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_reportingManager]]
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="reportingArrayAJAXResponse"
+      on-error="showError"
+      headers$='{"authorization": "{{islog.token}}"}'>
   </template>
 
   <script>
@@ -49,11 +53,25 @@
       static get is() { return 'mis-reportes'; }
       static get properties() {
         return {
-          prop1: {
-            type: String,
-            value: 'movimientos'
+          data: {
+            type: Array,
+            notify: true
+          },
+          islog: {
+           type: Object,
+           value: {},
+           notify:true
+         },
+          _user:{
+            type: Object,
+            value: {}
           }
         };
+      }
+
+      reportingArrayAJAXResponse(data){
+        setTimeout(() => this.$.getReporting.generateRequest(), 4000);
+        this.data = data.detail.response;
       }
     }
 

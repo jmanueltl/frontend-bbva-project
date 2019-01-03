@@ -4,6 +4,7 @@
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html" />
 <link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
@@ -33,8 +34,6 @@
   <div class="card">
     <h2>Realizar Transferencias</h2>
       <iron-form id="formCuestionario">
-        <paper-spinner alt="Cargando el usuario..." active="[[cargando]]"></paper-spinner>
-        <div hidden$="[[!cargando]]">cargando</div>
         <div>
           <paper-dropdown-menu label="Cuenta de cargo" name="nameAccount"  on-iron-select="_itemSelectedCargo" value="{{transfer.accountOrigin}}" style="width:30em" required>
             <paper-listbox id="listAccount" class="dropdown-content" slot="dropdown-content" >
@@ -103,19 +102,7 @@
       </div>
      </paper-dialog>
    </div>
-  <!--  <iron-input><input placeholder="type=date" type="date"></iron-input>
-    <iron-input><input placeholder="disabled" disabled></iron-input>
 
-    <iron-input allowed-pattern="[0-9]" auto-validate>
-         <input pattern="\d{3}" placeholder="exactly 3 digits are valid">
-    </iron-input>
-    <demo-snippet class="centered-demo">
-      <template>
-        <iron-input allowed-pattern="[!@#0-9]">
-          <input pattern="\d{3}" placeholder="exactly 3 digits are valid">
-        </iron-input>
-      </template>
-    </demo-snippet>-->
     <iron-ajax
       id="other"
       url=[[api.api_host]][[api.api_otherTransaction]]
@@ -127,9 +114,20 @@
       headers$='{"authorization": "{{islog.token}}"}'>
 
     <iron-ajax
+      id="postEnvioSMS"
+      url=[[api.api_host]][[api.api_users]]/[[api.api_enviosms]]
+      content-type="application/json"
+      method = "POST"
+      handle-as="json"
+      on-error="showError"
+      on-response="sendSMSAJAXResponse"
+      headers$='{"authorization": "{{islog.token}}"}'></iron-ajax>
+
+    <iron-ajax
+      auto
       id="getAccountDropdown"
       method="GET"
-      auto url=[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]
+      url='[[api.api_host]][[api.api_users]]/[[islog.userID]]/[[api.api_accountDropdown]]'
       handle-as="json"
       on-response="accountsDropdownAJAXResponse"
       on-error="showError"
@@ -153,7 +151,10 @@
         return {
           islog: {
            type: Object,
-           value: {}
+           value: function() {
+             return {};
+           },
+           notify: true
          },
          api: {
            type: Object,
@@ -173,7 +174,15 @@
          },
          transfer: {
            type: Object,
-           value: {}
+           value: function() {
+             return {};
+           }
+         },
+         textSMS: {
+           type: Object,
+           value: function() {
+             return {};
+           }
          },
          message : {
            type: String
@@ -188,6 +197,10 @@
          },
          useridd:{
            type: String
+         },
+         sender:{
+           type: String,
+           value: 'Proyecto Ether'
          }
         };
       }
@@ -251,6 +264,7 @@
       }
 
       accountsDropdownAJAXResponse(data) {
+          setTimeout(() => this.$.getAccountDropdown.generateRequest(), 4000);
           this.response = data.detail.response.account;
       }
 
@@ -260,6 +274,12 @@
         this.$.popLocalConfirm.open();
         this.transfer = {};
         this.$.getAccountDropdown.generateRequest();
+
+        this.textSMS.sender = this.sender;
+        this.textSMS.cuerpoMensaje =  this.message;
+        this.textSMS.listaNumbers  = "51"+this.islog.phone_number;
+        this.$.postEnvioSMS.body = JSON.stringify(this.textSMS);
+        this.$.postEnvioSMS.generateRequest();
       }
 
       accountsTransferOtherAJAXResponse(data){
@@ -268,6 +288,16 @@
         this.$.popLocalConfirm.open();
         this.transfer = {};
         this.$.getAccountDropdown.generateRequest();
+
+        this.textSMS.sender = this.sender;
+        this.textSMS.cuerpoMensaje =  this.message;
+        this.textSMS.listaNumbers  = "51"+this.islog.phone_number;
+        this.$.postEnvioSMS.body = JSON.stringify(this.textSMS);
+        this.$.postEnvioSMS.generateRequest();
+      }
+
+      sendSMSAJAXResponse(data){
+        console.log(data.detail.response);
       }
 
       patchOverlay(e) {
@@ -315,8 +345,6 @@
 
       showError(e) {
         const req = e.detail.request;
-        console.log('status code', req.status);
-        console.log('status text', req.statusText);
       }
     }
 

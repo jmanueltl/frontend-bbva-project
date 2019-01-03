@@ -87,6 +87,8 @@
                "api_accountDropdown":"dropdownaccount",
                "api_accountTransaction":"transaction",
                "api_otherTransaction":"transactionaccount",
+               "api_reportingManager":"managereporting",
+               "api_enviosms":"enviosms",
                "api_mov":"movements",
                "api_logout":"logout",
                "api_log":"login"
@@ -142,6 +144,7 @@
         this.userID="";
         this.nombres="";
         this.apellidos="";
+        this.userID="";
       }
 
       showErrorLogout(error) {
@@ -164,7 +167,8 @@
           "token":data.detail.response.token,
           "userID": data.detail.response.userID,
           "nombres": data.detail.response.nombre,
-          "apellidos": data.detail.response.apellidos
+          "apellidos": data.detail.response.apellidos,
+          "phone_number":data.detail.response.phone_number
         }
       }
 

@@ -30,20 +30,19 @@
       };
     }
     </style>
-    <app-localstorage-document key="data.local" data="{{islog}}"></app-localstorage-document>
+    <app-localstorage-document id="localstorage" key="data.local" data="{{islog}}"></app-localstorage-document>
 
       <div class="card">
           <div class="card-header">Gestion de usuarios </div>
         <div class="container-fluid">
             <div class="row">
             <div class="col-sm-4">
-              <paper-button raised on-tap="_Edit" class="custom indigo">Editar Usuario</paper-button>
-              <paper-button  raised on-tap="_Delete" class="custom indigo">Eliminar Usuario</paper-button>
-
+              <center>
+                <paper-button raised on-tap="_Edit" class="custom indigo">Editar Usuario</paper-button>
+                <paper-button  raised on-tap="_Delete" class="custom indigo">Eliminar Usuario</paper-button>
+              </center>
             </div>
-
             <br><br>
-
             <div class="col-sm-8">
               <div>
                 <div hidden$="[[oculto]]" id="insertarUsuario">
@@ -149,8 +148,7 @@
           },
           islog: {
            type: Object,
-           value: {},
-           notify:true
+           value: {}
          },
          message:{
            type: Boolean,
@@ -218,6 +216,10 @@
         let s = data.detail.response;
 
         this.islog.nombres = this.user.first_name;
+        this.islog.apellidos = this.user.last_name;
+
+        //this.islog["nombres"] = this.user.first_name;
+        //console.log(this.islog);
         this.user ="";
         //añadir pop up de aceptacion
         this.$.doUserGet.generateRequest();
