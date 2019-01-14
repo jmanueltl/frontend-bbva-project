@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "dependencies": {
       "bower": "1.8.4",
-      "polymer": "Polymer/polymer#^2.0.0"
+      "polymer": "2.0.0"
   },
   "scripts": {
       "start": "polymer serve",
       "postinstall": "bower install"
+  },
+  "engines": {
+    "node": "6.0.0"
   }
 }
