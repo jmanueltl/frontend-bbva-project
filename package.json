@@ -1,7 +1,9 @@
-"dependencies": {
-    "bower": "1.8.4"
-},
-"scripts": {
-    "start": "node index.html",
-    "postinstall": "bower install"
+{
+  "dependencies": {
+      "bower": "1.8.4"
+  },
+  "scripts": {
+      "start": "node index.html",
+      "postinstall": "bower install"
+  }
 }
