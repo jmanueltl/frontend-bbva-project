@@ -1,9 +1,11 @@
 {
+  "name": "proyecto-techu-practitioner",
+  "version": "0.0.0",
   "dependencies": {
       "bower": "1.8.4"
   },
   "scripts": {
-      "start": "node index.html",
+      "start": "polymer serve",
       "postinstall": "bower install"
   }
 }
