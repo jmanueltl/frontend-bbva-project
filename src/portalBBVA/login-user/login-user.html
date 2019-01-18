@@ -11,6 +11,7 @@
     .card { margin: 0 auto; float: none; margin-bottom: 10px; }
     .btn btn-success{ padding: 1em 1em 1em 1em; text-align: right;
     a:hover { color: white; }
+    .paper-buton-close{ background-color: #ccc; border-radius: 13px; float: right; min-width: unset !important; margin: 10px; border: solid 2px #b2b2b2; color: #303f9f; padding: unset; width: 26px; text-align: center; }
    </style>
 
    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
@@ -62,11 +63,11 @@
              </div>
              <div class="form-group">
                <label for="exampleInputEmail1">Email</label>
-               <input type="email" class="form-control" id="last_name" aria-describedby="emailHelp"  value="{{user.email::input}}" required>
+               <input type="email" class="form-control" id="email" aria-describedby="emailHelp"  value="{{user.email::input}}" required>
              </div>
               <div class="form-group">
                 <label for="exampleInputEmail1">Password</label>
-                <input type="password" id="passwordForm" class="form-control" id="pass" aria-describedby="emailHelp"  value="{{user.password::input}}" required>
+                <input type="password" id="passwordForm" class="form-control" aria-describedby="emailHelp"  value="{{user.password::input}}" required>
                 <input type="checkbox" on-tap="verPassword">Mostrar Password
               </div>
              <template is="dom-if" if="{{isInsert}}">
@@ -76,6 +77,13 @@
           </div>
        </paper-dialog>
    </div>
+
+   <paper-dialog id='messageGlobal' modal>
+     <paper-button dialog-dismiss class="paper-buton-close"> X </paper-button>
+     <div class="{{messageStyle::input}}" role="alert">
+       {{message::input}}
+     </div>
+   </paper-dialog>
 
    <iron-ajax
        id="doUserPost"
@@ -117,7 +125,13 @@
          isInsert:{
            type: Boolean,
            value:false
-         }
+         },
+         message: {
+          type: String
+        },
+        messageStyle: {
+         type: String
+       }
        };
      }
 
@@ -126,8 +140,6 @@
      }
 
      verPassword(){
-        let s = Polymer.dom(this.root).querySelector("#exampleInputPassword1");
-        let x = Polymer.dom(this.root).querySelector("#passwordForm");
         if (s.type === "password") {
           s.type = "text";
         } else {
@@ -152,13 +164,28 @@
         console.log('status text', req.statusText);
       }
       _InsertService(){
-        this.$.doUserPost.body = JSON.stringify(this.user);
-        this.$.doUserPost.generateRequest();
+        console.log(this.user.first_name);
+        if((this.user.first_name === '' || this.user.first_name=== undefined)  ||
+          (this.user.last_name === '' ||  this.user.last_name === undefined ) ||
+          (this.user.phone_number  === '' || this.user.last_name === undefined ) ||
+          ( this.user.email === '' || this.user.last_name === undefined ) ||
+          (this.user.password === ''  || this.user.last_name === undefined ))
+        {
+          this.message="Datos incompletos.";
+          this.$.messageGlobal.open();
+        }else{
+          this.$.doUserPost.body = JSON.stringify(this.user);
+          this.$.doUserPost.generateRequest();
+          this.$.popLocal.close();
+          this.messageStyle="alert alert-danger";
+          this.message="Espere mientras se crea su usuario ....";
+          this.$.messageGlobal.open();
+        }
       }
 
       userPostAJAXResponse(data) {
         console.log(this.user);
-        this.$.popLocal.close();
+        this.message="Usuario creado correctamente";
       }
 
 
