@@ -27,7 +27,7 @@
       <div class="form-group">
         <label for="exampleInputPassword1">Password</label>
         <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" value="{{password::input}}">
-        <input type="checkbox" on-tap="verPassword">Mostrar Password
+        <input type="checkbox" on-tap="verPassword" >Mostrar Password
       </div>
       <div class="row">
         <div class="col-sm-4">
@@ -140,15 +140,17 @@
      }
 
      verPassword(){
-        if (s.type === "password") {
-          s.type = "text";
+       let passInput = Polymer.dom(this.root).querySelector("#exampleInputPassword1");
+       let passForm = Polymer.dom(this.root).querySelector("#passwordForm");
+        if (passInput.type === "password") {
+          passInput.type = "text";
         } else {
-          s.type = "password";
+          passInput.type = "password";
         }
-        if (x.type === "password") {
-          x.type = "text";
+        if (passForm.type === "password") {
+          passForm.type = "text";
         } else {
-          x.type = "password";
+          passForm.type = "password";
         }
      }
 
@@ -165,11 +167,13 @@
       }
       _InsertService(){
         console.log(this.user.first_name);
-        if((this.user.first_name === '' || this.user.first_name=== undefined)  ||
+        if(
+          (this.user.first_name === '' || this.user.first_name=== undefined)  ||
           (this.user.last_name === '' ||  this.user.last_name === undefined ) ||
           (this.user.phone_number  === '' || this.user.last_name === undefined ) ||
           ( this.user.email === '' || this.user.last_name === undefined ) ||
-          (this.user.password === ''  || this.user.last_name === undefined ))
+          (this.user.password === ''  || this.user.last_name === undefined )
+        )
         {
           this.message="Datos incompletos.";
           this.$.messageGlobal.open();
