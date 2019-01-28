@@ -166,18 +166,24 @@
         console.log('status text', req.statusText);
       }
       _InsertService(){
-        console.log(this.user.first_name);
+        let cantDigitos = Polymer.dom(this.root).querySelector("#phone_number").value.length
+        console.log(cantDigitos);
         if(
           (this.user.first_name === '' || this.user.first_name=== undefined)  ||
           (this.user.last_name === '' ||  this.user.last_name === undefined ) ||
-          (this.user.phone_number  === '' || this.user.last_name === undefined ) ||
-          ( this.user.email === '' || this.user.last_name === undefined ) ||
-          (this.user.password === ''  || this.user.last_name === undefined )
+          (this.user.phone_number  === '' || this.user.phone_number === undefined ) ||
+          ( this.user.email === '' || this.user.email === undefined ) ||
+          (this.user.password === ''  || this.user.password === undefined )
         )
         {
           this.message="Datos incompletos.";
           this.$.messageGlobal.open();
+        }
+        else if(cantDigitos!=9){
+          this.message="Número telefónico debe ser 9 digitos.";
+          this.$.messageGlobal.open();
         }else{
+          console.log(this.user.first_name + " "+ this.user.email)
           this.$.doUserPost.body = JSON.stringify(this.user);
           this.$.doUserPost.generateRequest();
           this.$.popLocal.close();
@@ -188,7 +194,6 @@
       }
 
       userPostAJAXResponse(data) {
-        console.log(this.user);
         this.message="Usuario creado correctamente";
       }
 
